@@ -1,14 +1,18 @@
-# BestBags
-
 ## Table of contents
 
+- [Table of contents](#table-of-contents)
 - [Introduction](#introduction)
 - [Demo](#demo)
 - [Run](#run)
 - [Technology](#technology)
 - [Features](#features)
-- [Database Models](#database)
-- [Color Palette](#colors)
+- [Database](#database)
+  - [User Schema:](#user-schema)
+  - [Category Schema:](#category-schema)
+  - [Product Schema:](#product-schema)
+  - [Cart Schema:](#cart-schema)
+  - [Order Schema:](#order-schema)
+- [Colors](#colors)
 - [License](#license)
 
 ## Introduction
@@ -19,11 +23,9 @@ NOTE: Please read the RUN section before opening an issue.
 
 ## Demo
 
-![screenshot](screenshot.png)
-
 The application is deployed to Heroku and can be accessed through the following link:
 
-[BestBags on Heroku](https://best-bags.herokuapp.com/)
+[Heroku](https://its-test-site.herokuapp.com/)
 
 The website resembles a real store and you can add products to your cart and pay for them. If you want to try the checkout process, you can use the dummy card number provided by stripe for testing which is 4242 4242 4242 4242 with any expiration date, CVC, and zip codes. Please <u><b>DO NOT</b></u> provide real card number and data.
 
