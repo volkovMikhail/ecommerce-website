@@ -1,40 +1,48 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const csrf = require("csurf");
-var passport = require("passport");
-var LocalStrategy = require("passport-local").Strategy;
-const Product = require("../models/product");
-const Order = require("../models/order");
-const Cart = require("../models/cart");
-const middleware = require("../middleware");
+const csrf = require('csurf');
+var passport = require('passport');
+var LocalStrategy = require('passport-local').Strategy;
+const Product = require('../models/product');
+const Order = require('../models/order');
+const Cart = require('../models/cart');
+const middleware = require('../middleware');
+const User = require('../models/user');
 const {
   userSignUpValidationRules,
   userSignInValidationRules,
   validateSignup,
   validateSignin,
-} = require("../config/validator");
+} = require('../config/validator');
 const csrfProtection = csrf();
 router.use(csrfProtection);
 
+router.use((req, res, next) => {
+  const token = req.csrfToken();
+  res.cookie('XSRF-TOKEN', token);
+  res.locals.csrfToken = token;
+  next();
+});
+
 // GET: display the signup form with csrf token
-router.get("/signup", middleware.isNotLoggedIn, (req, res) => {
-  var errorMsg = req.flash("error")[0];
-  res.render("user/signup", {
+router.get('/signup', middleware.isNotLoggedIn, (req, res) => {
+  var errorMsg = req.flash('error')[0];
+  res.render('user/signup', {
     csrfToken: req.csrfToken(),
     errorMsg,
-    pageName: "Sign Up",
+    pageName: 'Sign Up',
   });
 });
 // POST: handle the signup logic
 router.post(
-  "/signup",
+  '/signup',
   [
     middleware.isNotLoggedIn,
     userSignUpValidationRules(),
     validateSignup,
-    passport.authenticate("local.signup", {
-      successRedirect: "/user/profile",
-      failureRedirect: "/user/signup",
+    passport.authenticate('local.signup', {
+      successRedirect: '/user/profile',
+      failureRedirect: '/user/signup',
       failureFlash: true,
     }),
   ],
@@ -52,35 +60,35 @@ router.post(
         req.session.oldUrl = null;
         res.redirect(oldUrl);
       } else {
-        res.redirect("/user/profile");
+        res.redirect('/user/profile');
       }
     } catch (err) {
       console.log(err);
-      req.flash("error", err.message);
-      return res.redirect("/");
+      req.flash('error', err.message);
+      return res.redirect('/');
     }
   }
 );
 
 // GET: display the signin form with csrf token
-router.get("/signin", middleware.isNotLoggedIn, async (req, res) => {
-  var errorMsg = req.flash("error")[0];
-  res.render("user/signin", {
+router.get('/signin', middleware.isNotLoggedIn, async (req, res) => {
+  var errorMsg = req.flash('error')[0];
+  res.render('user/signin', {
     csrfToken: req.csrfToken(),
     errorMsg,
-    pageName: "Sign In",
+    pageName: 'Sign In',
   });
 });
 
 // POST: handle the signin logic
 router.post(
-  "/signin",
+  '/signin',
   [
     middleware.isNotLoggedIn,
     userSignInValidationRules(),
     validateSignin,
-    passport.authenticate("local.signin", {
-      failureRedirect: "/user/signin",
+    passport.authenticate('local.signin', {
+      failureRedirect: '/user/signin',
       failureFlash: true,
     }),
   ],
@@ -104,39 +112,83 @@ router.post(
         req.session.oldUrl = null;
         res.redirect(oldUrl);
       } else {
-        res.redirect("/user/profile");
+        res.redirect('/user/profile');
       }
     } catch (err) {
       console.log(err);
-      req.flash("error", err.message);
-      return res.redirect("/");
+      req.flash('error', err.message);
+      return res.redirect('/');
     }
   }
 );
 
 // GET: display user's profile
-router.get("/profile", middleware.isLoggedIn, async (req, res) => {
-  const successMsg = req.flash("success")[0];
-  const errorMsg = req.flash("error")[0];
+router.get('/profile', middleware.isLoggedIn, async (req, res) => {
+  const successMsg = req.flash('success')[0];
+  const errorMsg = req.flash('error')[0];
   try {
     // find all orders of this user
     allOrders = await Order.find({ user: req.user });
-    res.render("user/profile", {
+    res.render('user/profile', {
       orders: allOrders,
       errorMsg,
       successMsg,
-      pageName: "User Profile",
+      pageName: 'User Profile',
+      activeTab: 'profile',
     });
   } catch (err) {
     console.log(err);
-    return res.redirect("/");
+    return res.redirect('/');
   }
 });
 
 // GET: logout
-router.get("/logout", middleware.isLoggedIn, (req, res) => {
+router.get('/logout', middleware.isLoggedIn, (req, res) => {
   req.logout();
   req.session.cart = null;
-  res.redirect("/");
+  res.redirect('/');
 });
+
+router.get('/', middleware.isLoggedIn, async (req, res) => {
+  const successMsg = req.flash('success')[0];
+  const errorMsg = req.flash('error')[0];
+  res.render('pages/user', {
+    pageName: 'Личные данные',
+    activeTab: 'user',
+    editMode: false,
+    errorMsg,
+    successMsg,
+  });
+});
+
+router.get('/update', middleware.isLoggedIn, async (req, res) => {
+  const successMsg = req.flash('success')[0];
+  const errorMsg = req.flash('error')[0];
+  res.render('pages/user', {
+    pageName: 'Личные данные',
+    activeTab: 'user',
+    editMode: true,
+    errorMsg,
+    successMsg,
+  });
+});
+
+router.post('/update', middleware.isLoggedIn, async (req, res) => {
+  try {
+    const userId = req.session.passport.user;
+    if (req.body.email) {
+      const existEmailUser = await User.findOne({ email: req.body.email });
+      if (existEmailUser) {
+        throw new Error('Пользователь с таким email существует');
+      }
+    }
+    const result = await User.updateOne({ _id: userId }, { ...req.body });
+    req.flash('success', 'Данные обновлены');
+  } catch (error) {
+    req.flash('error', error.message);
+  } finally {
+    res.redirect('/user');
+  }
+});
+
 module.exports = router;

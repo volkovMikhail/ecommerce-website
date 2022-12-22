@@ -29,7 +29,11 @@ a,
 .logo-container a,
 .right-nav a {
   color: var(--black);
-  text-decoration: none !important;
+}
+
+.stretched-link {
+  color: #007bff;
+  text-decoration: underline;
 }
 
 a:hover,
@@ -152,6 +156,7 @@ a:hover,
   border-bottom: 1px solid #575756;
   border-radius: 0;
   background-position: 100% center;
+  background-image: none;
 }
 
 /* HOME PAGE */
@@ -316,6 +321,10 @@ hr.gradient-style {
   margin: 1em auto;
 }
 
+.container.profile {
+  margin: 1em auto;
+}
+
 .img-small {
   height: 5%;
   margin: 2px;
@@ -477,7 +486,7 @@ footer {
   }
 }
 
-.img-cart{
+.img-cart {
   width: 15vw;
   min-width: 100px;
   max-width: 300px;

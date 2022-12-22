@@ -1,7 +1,8 @@
 <%- include ../partials/header %>
 <%- include ../partials/categories-navbar %>
 
-<div class="container">
+<div class="container profile">
+  <%- include ../partials/tabs %> 
   <!-- Flash messages -->
       <div class="row mt-3 mb-3">
         <div class="col-md-8 m-auto">
@@ -43,12 +44,12 @@
           </p>
         </div>
         <div class="card-footer">
-          <strong>Total Price: BYN <%= order.cart.totalCost %></strong>
+          <strong>Общая стоимость: BYN <%= order.cart.totalCost %></strong>
         </div>
       </div>
       <%}) %>
       <%} else { %>
-        <h3 class="text-center" >You have not made any orders yet</h3>
+        <h3 class="text-center" >Вы пока не делали заказов</h3>
       <%} %>
     </div>
   </div>

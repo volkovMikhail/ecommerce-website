@@ -1,0 +1,50 @@
+<%- include ../partials/header %> <%- include ../partials/categories-navbar %>
+<div class="container cart">
+  <%- include ../partials/tabs %>
+
+  <!-- ERRORS -->
+  <div class="row mt-2 mb-2">
+    <div class="col-md-8 m-auto">
+      <% if (successMsg) { %>
+      <div id="success" class="alert alert-success">
+        <%= successMsg %>
+      </div>
+      <% } else { %>
+      <div id="success" class="alert alert-success d-none"></div>
+      <% } %>
+    </div>
+    <div class="col-md-8 m-auto">
+      <% if (errorMsg) { %>
+      <div id="error" class="alert alert-danger">
+        <%= errorMsg %>
+      </div>
+      <% } else { %>
+      <div id="error" class="alert alert-danger d-none"></div>
+      <% } %>
+    </div>
+  </div>
+  <!-- end ERRORS -->
+  <div class="col-lg-4 mt-5">
+    <h3>Ваши личные данные</h3>
+    <% if(!editMode) { %>
+    <p class="p-2">
+      <p> Имя: <%- currentUser.username %> </p>
+      <p> Почта: <%- currentUser.email %> </p>
+      <p> Телефон: <%- currentUser.phone %> </p>
+      <p><a class="stretched-link" href="/user/update">Изменить данные</a> </p>
+    </p>
+    <% } else { %>
+      <form action="/user/update" method="post">
+      <p class="p-2">
+        <p> Имя: <input type="text" name="username" value="<%- currentUser.username %>"></p>
+        <p> Почта: <input type="text" name="email" value="<%- currentUser.email %>"></p>
+        <p> Телефон: <input type="text" name="phone" value="<%- currentUser.phone %>"></p>
+      </p>
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <button type="submit" class="btn btn-success">Сохранить</button>
+    </form>
+    <% } %>
+  </div>
+</div>
+
+<%- include ../partials/footer %>

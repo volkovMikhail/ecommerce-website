@@ -1,31 +1,29 @@
-const express = require("express");
-const csrf = require("csurf");
-const stripe = require("stripe")(process.env.STRIPE_PRIVATE_KEY);
-const Product = require("../models/product");
-const Category = require("../models/category");
-const Cart = require("../models/cart");
-const Order = require("../models/order");
-const middleware = require("../middleware");
+const express = require('express');
+const csrf = require('csurf');
+const stripe = require('stripe')(process.env.STRIPE_PRIVATE_KEY);
+const Product = require('../models/product');
+const Category = require('../models/category');
+const Cart = require('../models/cart');
+const Order = require('../models/order');
+const middleware = require('../middleware');
 const router = express.Router();
 
 const csrfProtection = csrf();
 router.use(csrfProtection);
 
 // GET: home page
-router.get("/", async (req, res) => {
+router.get('/', async (req, res) => {
   try {
-    const products = await Product.find({})
-      .sort("-createdAt")
-      .populate("category");
-    res.render("shop/home", { pageName: "Home", products });
+    const products = await Product.find({}).sort('-createdAt').populate('category');
+    res.render('shop/home', { pageName: 'Home', products });
   } catch (error) {
     console.log(error);
-    res.redirect("/");
+    res.redirect('/');
   }
 });
 
 // GET: add a product to the shopping cart when "Add to cart" button is pressed
-router.get("/add-to-cart/:id", async (req, res) => {
+router.get('/add-to-cart/:id', async (req, res) => {
   const productId = req.params.id;
   try {
     // get the correct cart, either from the db, session, or an empty cart.
@@ -34,10 +32,7 @@ router.get("/add-to-cart/:id", async (req, res) => {
       user_cart = await Cart.findOne({ user: req.user._id });
     }
     let cart;
-    if (
-      (req.user && !user_cart && req.session.cart) ||
-      (!req.user && req.session.cart)
-    ) {
+    if ((req.user && !user_cart && req.session.cart) || (!req.user && req.session.cart)) {
       cart = await new Cart(req.session.cart);
     } else if (!req.user || !user_cart) {
       cart = new Cart({});
@@ -73,16 +68,16 @@ router.get("/add-to-cart/:id", async (req, res) => {
       await cart.save();
     }
     req.session.cart = cart;
-    req.flash("success", "Item added to the shopping cart");
+    req.flash('success', 'Item added to the shopping cart');
     res.redirect(req.headers.referer);
   } catch (err) {
     console.log(err.message);
-    res.redirect("/");
+    res.redirect('/');
   }
 });
 
 // GET: view shopping cart contents
-router.get("/shopping-cart", async (req, res) => {
+router.get('/shopping-cart', async (req, res) => {
   try {
     // find the cart, whether in session or in db based on the user state
     let cart_user;
@@ -92,34 +87,37 @@ router.get("/shopping-cart", async (req, res) => {
     // if user is signed in and has cart, load user's cart from the db
     if (req.user && cart_user) {
       req.session.cart = cart_user;
-      return res.render("shop/shopping-cart", {
+      return res.render('shop/shopping-cart', {
         cart: cart_user,
-        pageName: "Shopping Cart",
+        pageName: 'Shopping Cart',
         products: await productsFromCart(cart_user),
+        activeTab: 'cart',
       });
     }
     // if there is no cart in session and user is not logged in, cart is empty
     if (!req.session.cart) {
-      return res.render("shop/shopping-cart", {
+      return res.render('shop/shopping-cart', {
         cart: null,
-        pageName: "Shopping Cart",
+        pageName: 'Shopping Cart',
         products: null,
+        activeTab: 'cart',
       });
     }
     // otherwise, load the session's cart
-    return res.render("shop/shopping-cart", {
+    return res.render('shop/shopping-cart', {
       cart: req.session.cart,
-      pageName: "Shopping Cart",
+      pageName: 'Shopping Cart',
       products: await productsFromCart(req.session.cart),
+      activeTab: 'cart',
     });
   } catch (err) {
     console.log(err.message);
-    res.redirect("/");
+    res.redirect('/');
   }
 });
 
 // GET: reduce one from an item in the shopping cart
-router.get("/reduce/:id", async function (req, res, next) {
+router.get('/reduce/:id', async function (req, res, next) {
   // if a user is logged in, reduce from the user's cart and save
   // else reduce from the session's cart
   const productId = req.params.id;
@@ -159,12 +157,12 @@ router.get("/reduce/:id", async function (req, res, next) {
     res.redirect(req.headers.referer);
   } catch (err) {
     console.log(err.message);
-    res.redirect("/");
+    res.redirect('/');
   }
 });
 
 // GET: remove all instances of a single product from the cart
-router.get("/removeAll/:id", async function (req, res, next) {
+router.get('/removeAll/:id', async function (req, res, next) {
   const productId = req.params.id;
   let cart;
   try {
@@ -194,48 +192,48 @@ router.get("/removeAll/:id", async function (req, res, next) {
     res.redirect(req.headers.referer);
   } catch (err) {
     console.log(err.message);
-    res.redirect("/");
+    res.redirect('/');
   }
 });
 
 // GET: checkout form with csrf token
-router.get("/checkout", middleware.isLoggedIn, async (req, res) => {
-  const errorMsg = req.flash("error")[0];
+router.get('/checkout', middleware.isLoggedIn, async (req, res) => {
+  const errorMsg = req.flash('error')[0];
 
   if (!req.session.cart) {
-    return res.redirect("/shopping-cart");
+    return res.redirect('/shopping-cart');
   }
   //load the cart with the session's cart's id from the db
   cart = await Cart.findById(req.session.cart._id);
 
-  const errMsg = req.flash("error")[0];
-  res.render("shop/checkout", {
+  const errMsg = req.flash('error')[0];
+  res.render('shop/checkout', {
     total: cart.totalCost,
     csrfToken: req.csrfToken(),
     errorMsg,
-    pageName: "Checkout",
+    pageName: 'Checkout',
   });
 });
 
 // POST: handle checkout logic and payment using Stripe
-router.post("/checkout", middleware.isLoggedIn, async (req, res) => {
+router.post('/checkout', middleware.isLoggedIn, async (req, res) => {
   if (!req.session.cart) {
-    return res.redirect("/shopping-cart");
+    return res.redirect('/shopping-cart');
   }
   const cart = await Cart.findById(req.session.cart._id);
-  console.log(req.body)
+  console.log(req.body);
   stripe.charges.create(
     {
       amount: cart.totalCost * 100,
-      currency: "usd",
+      currency: 'usd',
       source: req.body.stripeToken,
-      description: "Test charge",
+      description: 'Test charge',
     },
     function (err, charge) {
       if (err) {
-        req.flash("error", err.message);
+        req.flash('error', err.message);
         console.log(err);
-        return res.redirect("/checkout");
+        return res.redirect('/checkout');
       }
       const order = new Order({
         user: req.user,
@@ -250,13 +248,13 @@ router.post("/checkout", middleware.isLoggedIn, async (req, res) => {
       order.save(async (err, newOrder) => {
         if (err) {
           console.log(err);
-          return res.redirect("/checkout");
+          return res.redirect('/checkout');
         }
         await cart.save();
         await Cart.findByIdAndDelete(cart._id);
-        req.flash("success", "Successfully purchased");
+        req.flash('success', 'Successfully purchased');
         req.session.cart = null;
-        res.redirect("/user/profile");
+        res.redirect('/user/profile');
       });
     }
   );
@@ -266,11 +264,9 @@ router.post("/checkout", middleware.isLoggedIn, async (req, res) => {
 async function productsFromCart(cart) {
   let products = []; // array of objects
   for (const item of cart.items) {
-    let foundProduct = (
-      await Product.findById(item.productId).populate("category")
-    ).toObject();
-    foundProduct["qty"] = item.qty;
-    foundProduct["totalPrice"] = item.price;
+    let foundProduct = (await Product.findById(item.productId).populate('category')).toObject();
+    foundProduct['qty'] = item.qty;
+    foundProduct['totalPrice'] = item.price;
     products.push(foundProduct);
   }
   return products;

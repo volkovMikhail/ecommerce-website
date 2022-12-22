@@ -1,0 +1,11 @@
+<ul class="nav nav-tabs">
+  <li class="nav-item">
+    <a class="nav-link <% if(activeTab === "user") { %><%= "active" %><% } %>" href="/user">Личные данные</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link <% if(activeTab === "profile") { %><%= "active" %><% } %>" href="/user/profile">Заказы</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link <% if(activeTab === "cart") { %><%= "active" %><% } %>" href="/shopping-cart">Корзина</a>
+  </li>
+</ul>

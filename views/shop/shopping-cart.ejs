@@ -1,5 +1,6 @@
 <%- include ../partials/header %> <%- include ../partials/categories-navbar %>
 <div class="container cart">
+  <%- include ../partials/tabs %>
   <% if (cart != null && !cart.paid ) { %>
   <div class="row">
     <div class="col-md-11 col-sm-12 m-auto table-responsive">
@@ -69,18 +70,21 @@
 <hr>
   <div class="row mt-4 mr-auto">
     <div class="col-md-11 col-sm-12 m-auto">
-      <strong>Total: <%= cart.totalCost %> </strong>
+      <strong>Итог: <%= cart.totalCost %> </strong>
     </div>
   </div>
   <div class="row mt-2 mr-auto">
     <div class="col-md-11 col-sm-12 m-auto">
-      <a href="/checkout" class="btn btn-dark button-style">Checkout</a>
+      <a href="/checkout" class="btn btn-dark button-style">Оформить заказ</a>
     </div>
   </div>
   <% } else { %>
   <div class="row text-center">
     <div class="col-md-9 col-sm-9 m-auto">
-      <h2>No items in the cart</h2>
+      <h2>В корзине ничего нету</h2>
+      <a href="products/" class="h2 stretched-link">
+        Перейти в каталог
+      </a>
     </div>
   </div>
 
