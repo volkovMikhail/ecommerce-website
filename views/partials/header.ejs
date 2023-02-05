@@ -3,7 +3,7 @@
   <head>
     <% if (pageName) { %>
       <!-- TODO: change title -->
-    <title>NameOfShop | <%= pageName %></title>
+    <title>PetShop | <%= pageName %></title>
     <%} else {%>
     <title>Shopping Cart</title>
     <% } %>
@@ -47,6 +47,9 @@
       href="https://api.mapbox.com/mapbox-gl-js/v1.10.0/mapbox-gl.css"
       rel="stylesheet"
     />
+
+    <!-- favicon -->
+    <link rel="shortcut icon" type="image/jpg" href="/favicon.png"/>
   </head>
 
   <body>
@@ -68,9 +71,9 @@
 
       <div class="col-md-4 col-sm-12 col-xs-12 logo-container">
         <a href="/">
-          <!-- <img class="logo-img img-fluid" src="/images/shop-icon.png" alt="logo" /> -->
+          <img class="logo-img img-fluid" src="/images/logo_full.png" alt="logo" />
            <!-- TODO: change title and logo -->
-          <h4 class="logo-title">NameOfShop</h4>
+          <!-- <h4 class="logo-title">NameOfShop</h4> -->
         </a>
       </div>
 
