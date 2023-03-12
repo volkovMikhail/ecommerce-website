@@ -67,6 +67,16 @@
 
   <hr class="gradient-style" />
   <!-- Contents -->
+  <div class="pl-4 pr-4">
+    <select class="form-control" style="min-width: 150px; width: 15%;" name="sort" id="sortSelect">
+      <option value="price" <%- sort === 'price' ? 'selected' : '' %>>Сначала дешёвые</option>
+      <option value="-price" <%- sort === '-price' ? 'selected' : '' %>>Сначала дорогие</option>
+      <option value="-createdAt" <%- sort === '-createdAt' ? 'selected' : '' %>>Сначала новые</option>
+      <option value="title" <%- sort === 'title' ? 'selected' : '' %>>А - Я</option>
+      <option value="-title" <%- sort === '-title' ? 'selected' : '' %>>Я - А</option>
+    </select>
+  </div>
+
   <div class="row pl-4 pr-4">
     <% products.forEach((product) => { %>
     <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12 product-index-box">
