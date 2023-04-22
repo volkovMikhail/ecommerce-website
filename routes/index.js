@@ -7,6 +7,8 @@ const Cart = require('../models/cart');
 const Order = require('../models/order');
 const middleware = require('../middleware');
 const router = express.Router();
+const nodemailer = require('nodemailer');
+const pdf = require('html-pdf');
 
 const csrfProtection = csrf();
 router.use(csrfProtection);
@@ -46,9 +48,10 @@ router.get('/add-to-cart/:id', async (req, res) => {
     if (itemIndex > -1) {
       // if product exists in the cart, update the quantity
       cart.items[itemIndex].qty++;
-      cart.items[itemIndex].price = cart.items[itemIndex].qty * product.price;
+      cart.items[itemIndex].price = (cart.items[itemIndex].qty * product.price).toFixed(2);
       cart.totalQty++;
       cart.totalCost += product.price;
+      cart.totalCost = cart.totalCost.toFixed(2);
     } else {
       // if product does not exists in cart, find it in the db to retrieve its price and add new item
       cart.items.push({
@@ -224,7 +227,7 @@ router.post('/checkout', middleware.isLoggedIn, async (req, res) => {
   console.log(req.body);
   stripe.charges.create(
     {
-      amount: cart.totalCost * 100,
+      amount: (Number(cart.totalCost).toFixed(2) * 100).toFixed(0),
       currency: 'usd',
       source: req.body.stripeToken,
       description: 'Test charge',
@@ -235,6 +238,10 @@ router.post('/checkout', middleware.isLoggedIn, async (req, res) => {
         console.log(err);
         return res.redirect('/checkout');
       }
+
+      let orderId;
+      let paymentId = charge.id;
+
       const order = new Order({
         user: req.user,
         cart: {
@@ -245,6 +252,7 @@ router.post('/checkout', middleware.isLoggedIn, async (req, res) => {
         address: req.body.address,
         paymentId: charge.id,
       });
+
       order.save(async (err, newOrder) => {
         if (err) {
           console.log(err);
@@ -252,10 +260,67 @@ router.post('/checkout', middleware.isLoggedIn, async (req, res) => {
         }
         await cart.save();
         await Cart.findByIdAndDelete(cart._id);
-        req.flash('success', 'Successfully purchased');
-        req.session.cart = null;
-        res.redirect('/user/profile');
+        orderId = newOrder._id;
+        const transporter = nodemailer.createTransport({
+          host: 'smtp.gmail.com',
+          port: 587,
+          secure: false,
+          auth: {
+            // company's email and password
+            user: process.env.GMAIL_EMAIL,
+            pass: process.env.GMAIL_PASSWORD,
+          },
+          tls: {
+            rejectUnauthorized: false,
+          },
+        });
+
+        let htmlBody = '';
+        htmlBody += `<h1>Pet Shop</h1>`;
+        htmlBody += `<b>Номер телефона: ${req.user.phone || '-'}</b><br/>`;
+        htmlBody += `<b>Адрес: ${req.body.address}</b><br/>`;
+        htmlBody += `<b>Номер заказа: ${orderId || '-'}</b><br/>`;
+        htmlBody += `<b>Оплата: ${paymentId || '-'}</b><br/>
+                      <hr>`;
+
+        htmlBody += `<ol type="1">`;
+
+        for (let index = 0; index < cart.items.length; index++) {
+          const item = cart.items[index];
+          htmlBody += `<li>${item.title}(${item.productCode}) x ${item.qty} = <b>${item.price} BYN</b></li>`;
+        }
+
+        htmlBody += `</ol>`;
+
+        htmlBody += `<hr>
+                      <br/>
+                      <h3>Сумма: ${cart.totalCost}</h3>`;
+
+        pdf.create(htmlBody).toBuffer(async function (err, buffer) {
+          if (err) {
+            throw err;
+          }
+
+          transporter.sendMail({
+            from: process.env.GMAIL_EMAIL,
+            to: req.user.email,
+            subject: 'чек от "Petshop"',
+            text: htmlBody,
+            html: htmlBody,
+            attachments: [
+              {
+                filename: `чек_${req.user.username}.pdf`,
+                content: buffer,
+                contentType: 'application/pdf',
+              },
+            ],
+          });
+        });
       });
+
+      req.flash('success', 'Successfully purchased');
+      req.session.cart = null;
+      res.redirect('/user/profile');
     }
   );
 });
