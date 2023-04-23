@@ -10,7 +10,7 @@ router.get('/', async (req, res) => {
   const errorMsg = req.flash('error')[0];
   const perPage = 8;
   let page = parseInt(req.query.page) || 1;
-  const sort = req?.query?.sort || '-createdAt';
+  const sort = req.query.sort || '-createdAt';
   try {
     const products = await Product.find({})
       .sort(sort)
@@ -50,7 +50,7 @@ router.get('/search', async (req, res) => {
   let page = parseInt(req.query.page) || 1;
   const successMsg = req.flash('success')[0];
   const errorMsg = req.flash('error')[0];
-  const sort = req?.query?.sort || '-createdAt';
+  const sort = req.query.sort || '-createdAt';
   try {
     const products = await Product.find({
       title: { $regex: req.query.search, $options: 'i' },
@@ -94,7 +94,7 @@ router.get('/:slug', async (req, res) => {
   const errorMsg = req.flash('error')[0];
   const perPage = 8;
   let page = parseInt(req.query.page) || 1;
-  const sort = req?.query?.sort || '-createdAt';
+  const sort = req.query.sort || '-createdAt';
   try {
     const foundCategory = await Category.findOne({ slug: req.params.slug });
     const allProducts = await Product.find({ category: foundCategory.id })
