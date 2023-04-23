@@ -8,7 +8,7 @@ const Order = require('../models/order');
 const middleware = require('../middleware');
 const router = express.Router();
 const nodemailer = require('nodemailer');
-const puppeteer = require('puppeteer');
+const html_to_pdf = require('html-pdf-node');
 
 const csrfProtection = csrf();
 router.use(csrfProtection);
@@ -296,27 +296,24 @@ router.post('/checkout', middleware.isLoggedIn, async (req, res) => {
                       <br/>
                       <h3>Сумма: ${cart.totalCost}</h3>`;
 
-        const browser = await puppeteer.launch();
-        const page = await browser.newPage();
+        const file = { content: htmlBody };
 
-        await page.setContent(htmlBody);
-        const buffer = await page.pdf({ format: 'A4' });
-
-        await browser.close();
-
-        transporter.sendMail({
-          from: process.env.GMAIL_EMAIL,
-          to: req.user.email,
-          subject: 'чек от "Petshop"',
-          text: htmlBody,
-          html: htmlBody,
-          attachments: [
-            {
-              filename: `чек_${req.user.username}.pdf`,
-              content: buffer,
-              contentType: 'application/pdf',
-            },
-          ],
+        const options = { format: 'A4' };
+        html_to_pdf.generatePdf(file, options).then((pdfBuffer) => {
+          transporter.sendMail({
+            from: process.env.GMAIL_EMAIL,
+            to: req.user.email,
+            subject: 'чек от "Petshop"',
+            text: htmlBody,
+            html: htmlBody,
+            attachments: [
+              {
+                filename: `чек_${req.user.username}.pdf`,
+                content: pdfBuffer,
+                contentType: 'application/pdf',
+              },
+            ],
+          });
         });
       });
 
