@@ -63,6 +63,7 @@ router.get('/add-to-cart/:id', async (req, res) => {
       });
       cart.totalQty++;
       cart.totalCost += product.price;
+      cart.totalCost = cart.totalCost.toFixed(2);
     }
 
     // if the user is logged in, store the user's id and save cart to the db
