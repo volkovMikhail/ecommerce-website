@@ -28,7 +28,7 @@
   <div class="row mt-4">
     <div class="col-md-8 m-auto">
       <% if (orders != null && orders.length > 0) { %>
-      <h3>My orders</h3>
+      <h3>Мои заказы</h3>
       <% orders.forEach( order => { %>
       <div class="card m-3">
         <div class="card-body">
@@ -36,7 +36,7 @@
             <ul class="list-group">
               <% order.cart.items.forEach( item => { %>
               <li class="list-group-item d-flex justify-content-between align-items-center">
-                <%= item.title %> | <%= item.qty %> Units
+                <%= item.title %> | x <%= item.qty %> 
                 <span class="badge badge-info badge-pill"><%= item.price %></span>
               </li>
               <%}) %>

@@ -7,13 +7,13 @@
       <table class="table text-center">
         <thead>
           <tr >
-            <th>Product</th>
+            <th>Товар</th>
             <th>&nbsp;</th>
             <th>&nbsp;</th>
-            <th>Quantity</th>
+            <th>Количество</th>
             <th>&nbsp;</th>
-            <th>Total</th>
-            <th>Subtotal</th>
+            <th>Цена</th>
+            <th>Сумма</th>
             <th>&nbsp;</th>
           </tr>
         </thead>
@@ -33,7 +33,7 @@
                 href="/products/<%=product.category.slug%>/<%=product._id%>"
               >
                 <h6 class="text-left"><%= product.title %></h6> 
-                <p class="text-left">Product No: <%= product.productCode %></p>
+                <p class="text-left">Код товара: <%= product.productCode %></p>
               </div>
               </a>
             </td>
@@ -58,7 +58,7 @@
               <a
                 href="/removeAll/<%=product._id%>"
                 class="btn btn-danger btn-sm button-style-danger"
-                >Remove all</a
+                >Удалить всё</a
               >
             </td>
           </tr>

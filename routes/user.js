@@ -178,7 +178,7 @@ router.post('/update', middleware.isLoggedIn, async (req, res) => {
     const userId = req.session.passport.user;
     if (req.body.email) {
       const existEmailUser = await User.findOne({ email: req.body.email });
-      if (existEmailUser) {
+      if (existEmailUser && existEmailUser._id != userId) {
         throw new Error('Пользователь с таким email существует');
       }
     }
