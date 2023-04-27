@@ -1,10 +1,10 @@
 <% if (pages > 0) { %>
 <ul class="pagination text-center">
   <% if (current == 1) { %>
-  <li class="page-item disabled"><a class="page-link">First</a></li>
+  <li class="page-item disabled"><a class="page-link">Первая</a></li>
   <% } else { %>
   <li class="page-item">
-    <a class="page-link" href="<%=home%>page=1">First</a>
+    <a class="page-link" href="<%=home%>page=1">Первая</a>
   </li>
   <% } %> <% var i = (Number(current) > 5 ? Number(current) - 4 : 1) %> <% if (i
   !== 1) { %>
@@ -19,10 +19,10 @@
   <% } %> <% if (i == Number(current) + 4 && i < pages) { %>
   <li class="page-item disabled"><a class="page-link">...</a></li>
   <% } %> <% } %> <% if (current == pages) { %>
-  <li class="page-item disabled"><a class="page-link">Last</a></li>
+  <li class="page-item disabled"><a class="page-link">Последняя</a></li>
   <% } else { %>
   <li class="page-item">
-    <a class="page-link" href="<%=home%>page=<%= pages %>">Last</a>
+    <a class="page-link" href="<%=home%>page=<%= pages %>">Последняя</a>
   </li>
   <% } %>
 </ul>
