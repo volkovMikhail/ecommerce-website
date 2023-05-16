@@ -212,7 +212,7 @@ router.get('/checkout', middleware.isLoggedIn, async (req, res) => {
 
   const errMsg = req.flash('error')[0];
   res.render('shop/checkout', {
-    total: cart.totalCost,
+    total: Number(cart.totalCost)?.toFixed(2),
     csrfToken: req.csrfToken(),
     errorMsg,
     pageName: 'Checkout',
@@ -247,7 +247,7 @@ router.post('/checkout', middleware.isLoggedIn, async (req, res) => {
         user: req.user,
         cart: {
           totalQty: cart.totalQty,
-          totalCost: cart.totalCost,
+          totalCost: Number(cart.totalCost)?.toFixed(2),
           items: cart.items,
         },
         address: req.body.address,
@@ -295,7 +295,7 @@ router.post('/checkout', middleware.isLoggedIn, async (req, res) => {
 
         htmlBody += `<hr>
                       <br/>
-                      <h3>Сумма: ${cart.totalCost}</h3>`;
+                      <h3>Сумма: ${cart.totalCost?.toFixed(2)}</h3>`;
 
         const file = { content: htmlBody };
 

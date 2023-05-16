@@ -12,8 +12,8 @@ const AdminShowImage = (props) => {
   const { record, property } = props;
   return (
     <div>
-      <Label>Product Image</Label>
-      <img style={imgStyle} src={record.params.imagePath} alt="Product Image" />
+      <Label>Картинка товара</Label>
+      <img style={imgStyle} src={record.params.imagePath} alt="Картинка товара" />
     </div>
   );
 };
