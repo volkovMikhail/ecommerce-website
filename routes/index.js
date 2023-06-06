@@ -208,7 +208,11 @@ router.get('/checkout', middleware.isLoggedIn, async (req, res) => {
     return res.redirect('/shopping-cart');
   }
   //load the cart with the session's cart's id from the db
-  cart = await Cart.findById(req.session.cart._id);
+  let cart = await Cart.findById(req.session.cart._id);
+
+  if (!cart) {
+    cart = req.session.cart;
+  }
 
   const errMsg = req.flash('error')[0];
   res.render('shop/checkout', {
@@ -224,7 +228,12 @@ router.post('/checkout', middleware.isLoggedIn, async (req, res) => {
   if (!req.session.cart) {
     return res.redirect('/shopping-cart');
   }
-  const cart = await Cart.findById(req.session.cart._id);
+  let cart = await Cart.findById(req.session.cart._id);
+
+  if (!cart) {
+    cart = new Cart(req.session.cart);
+  }
+
   console.log(req.body);
   stripe.charges.create(
     {
